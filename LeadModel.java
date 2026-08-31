@@ -1,2 +1,0 @@
-package com.sharu.crm.ui;
-public class LeadModel { public String name; public String phone; public String details; public String category; public LeadModel(String n, String p, String d, String c) { this.name = n; this.phone = p; this.details = d; this.category = c; } }

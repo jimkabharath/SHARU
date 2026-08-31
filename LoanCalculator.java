@@ -1,2 +1,0 @@
-package com.sharu.crm.calc;
-public class LoanCalculator { public static double calculateEMI(double p, double r, int y) { if (p <= 0 || r <= 0 || y <= 0) return 0.0; double m = r / (12 * 100); double pow = Math.pow(1 + m, y * 12); return (p * m * pow) / (pow - 1); } }

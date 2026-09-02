@@ -24,6 +24,14 @@ public class WhatsAppHelper {
     }
 
     /**
+     * Follow-up message used by LeadAdapter
+     */
+    public static void sendLeadFollowUp(Context context, String phone, String name, String details) {
+        String template = "Hello " + name + ",\n\nFollowing up regarding your requirement (" + details + "). Let me know a convenient time to connect!";
+        sendMessage(context, phone, template);
+    }
+
+    /**
      * Exports all local .cli data directly to your own WhatsApp number as a daily backup.
      */
     public static void sendDailyBackupToWhatsApp(Context context, String selfPhoneNumber) {

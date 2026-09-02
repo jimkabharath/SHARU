@@ -24,6 +24,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements VoiceCommandManager.VoiceCallback {
 
     private static final int RECORD_AUDIO_REQ = 101;
+    private static final String BACKUP_PHONE_NUMBER = "+919876543210";
+
     private VoiceCommandManager voiceManager;
     private Button btnVoice;
     private Button btnAddLead;
@@ -76,7 +78,10 @@ public class MainActivity extends AppCompatActivity implements VoiceCommandManag
     public void onCommandRecognized(String action, String payload) {
         Toast.makeText(this, "Recognized: " + payload, Toast.LENGTH_SHORT).show();
 
-        if (action.equals("ACTION_CALL") && !leadList.isEmpty()) {
+        if (action.equals("ACTION_BACKUP_WHATSAPP")) {
+            Toast.makeText(this, "Generating daily backup...", Toast.LENGTH_SHORT).show();
+            WhatsAppHelper.sendDailyBackupToWhatsApp(this, BACKUP_PHONE_NUMBER);
+        } else if (action.equals("ACTION_CALL") && !leadList.isEmpty()) {
             Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + leadList.get(0).getPhone()));
             startActivity(callIntent);
         } else if (action.equals("ACTION_WHATSAPP") && !leadList.isEmpty()) {

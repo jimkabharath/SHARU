@@ -60,7 +60,7 @@ public class VoiceCommandManager {
                 callback.onListeningStatus(false);
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
-                    processVoiceInput(matches.get(0).toLowerCase());
+                    processVoiceInput(matches.get(0).toLowerCase(Locale.ROOT).trim());
                 }
             }
 
@@ -87,33 +87,64 @@ public class VoiceCommandManager {
         }
     }
 
+    /**
+     * Reordered Processing Pipeline:
+     * 1. High-priority system routines (Backup/Report export)
+     * 2. Direct telephony triggers (Call/Dial lead)
+     * 3. Messaging triggers (WhatsApp message/quote)
+     * 4. Numeric calculation engine (EMI/Loan computation)
+     * 5. Pipeline status updates (Hot, Warm, Cold, Fake)
+     * 6. Default fallback (Lead filter/Search)
+     */
     private void processVoiceInput(String text) {
-        if (text.contains("backup") || text.contains("report") || text.contains("daily")) {
+        // Priority 1: High-priority system exports
+        if (text.contains("backup") || text.contains("daily report") || text.contains("send report")) {
             callback.onCommandRecognized("ACTION_BACKUP_WHATSAPP", text);
-        } else if (text.contains("emi") || text.contains("loan") || text.contains("interest")) {
-            extractAndComputeEmi(text);
-        } else if (text.contains("call") || text.contains("dial")) {
-            callback.onCommandRecognized("ACTION_CALL", text);
-        } else if (text.contains("whatsapp") || text.contains("message") || text.contains("quote")) {
-            callback.onCommandRecognized("ACTION_WHATSAPP", text);
-        } else if (text.contains("hot") || text.contains("warm") || text.contains("cold") || text.contains("fake")) {
-            callback.onCommandRecognized("ACTION_STATUS_UPDATE", text);
-        } else {
-            callback.onCommandRecognized("ACTION_SEARCH", text);
+            return;
         }
+
+        // Priority 2: Direct telephony intent
+        if (text.startsWith("call") || text.startsWith("dial") || text.contains("make a call") || text.contains("phone")) {
+            callback.onCommandRecognized("ACTION_CALL", text);
+            return;
+        }
+
+        // Priority 3: Messaging intents
+        if (text.startsWith("whatsapp") || text.startsWith("message") || text.contains("send whatsapp") || text.contains("share quote")) {
+            callback.onCommandRecognized("ACTION_WHATSAPP", text);
+            return;
+        }
+
+        // Priority 4: Numerical Loan & EMI calculation
+        if (text.contains("emi") || text.contains("loan") || text.contains("interest") || text.contains("calculate")) {
+            extractAndComputeEmi(text);
+            return;
+        }
+
+        // Priority 5: Priority status updates
+        if (text.contains("mark hot") || text.contains("mark warm") || text.contains("mark cold") || text.contains("mark fake")
+                || text.equals("hot") || text.equals("warm") || text.equals("cold") || text.equals("fake")) {
+            callback.onCommandRecognized("ACTION_STATUS_UPDATE", text);
+            return;
+        }
+
+        // Priority 6: Default fallback
+        callback.onCommandRecognized("ACTION_SEARCH", text);
     }
 
     private void extractAndComputeEmi(String text) {
         double principal = 0.0;
-        double rate = 8.5; // Default fallback interest rate
+        double rate = 8.5; // Default fallback rate
         int months = 240;  // Default fallback tenure: 20 years
 
+        // Extract Rate (e.g., "8.5%", "9 percent", "at 10.25")
         Pattern ratePattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(%|percent|pc)");
         Matcher rateMatcher = ratePattern.matcher(text);
         if (rateMatcher.find()) {
             rate = Double.parseDouble(rateMatcher.group(1));
         }
 
+        // Extract Tenure (months or years)
         Pattern monthPattern = Pattern.compile("(\\d+)\\s*(months?|month|m)");
         Matcher monthMatcher = monthPattern.matcher(text);
         if (monthMatcher.find()) {
@@ -126,6 +157,7 @@ public class VoiceCommandManager {
             }
         }
 
+        // Extract Principal (Crores, Lakhs, Thousands, or Raw numbers)
         Pattern crPattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(crores?|crore|cr)");
         Matcher crMatcher = crPattern.matcher(text);
         if (crMatcher.find()) {

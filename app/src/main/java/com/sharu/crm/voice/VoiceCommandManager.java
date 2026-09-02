@@ -88,10 +88,10 @@ public class VoiceCommandManager {
     }
 
     private void processVoiceInput(String text) {
-        if (text.contains("emi") || text.contains("loan") || text.contains("interest")) {
-            extractAndComputeEmi(text);
-        } else if (text.contains("backup") || text.contains("report") || text.contains("daily")) {
+        if (text.contains("backup") || text.contains("report") || text.contains("daily")) {
             callback.onCommandRecognized("ACTION_BACKUP_WHATSAPP", text);
+        } else if (text.contains("emi") || text.contains("loan") || text.contains("interest")) {
+            extractAndComputeEmi(text);
         } else if (text.contains("call") || text.contains("dial")) {
             callback.onCommandRecognized("ACTION_CALL", text);
         } else if (text.contains("whatsapp") || text.contains("message") || text.contains("quote")) {
@@ -108,14 +108,12 @@ public class VoiceCommandManager {
         double rate = 8.5; // Default fallback interest rate
         int months = 240;  // Default fallback tenure: 20 years
 
-        // 1. Extract Rate (e.g., "8.5%", "9 percent", "at 10.25")
         Pattern ratePattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(%|percent|pc)");
         Matcher rateMatcher = ratePattern.matcher(text);
         if (rateMatcher.find()) {
             rate = Double.parseDouble(rateMatcher.group(1));
         }
 
-        // 2. Extract Tenure (e.g., "240 months", "120 m", "5 years")
         Pattern monthPattern = Pattern.compile("(\\d+)\\s*(months?|month|m)");
         Matcher monthMatcher = monthPattern.matcher(text);
         if (monthMatcher.find()) {
@@ -128,7 +126,6 @@ public class VoiceCommandManager {
             }
         }
 
-        // 3. Extract Principal (Crores, Lakhs, Thousands, or Raw numbers)
         Pattern crPattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(crores?|crore|cr)");
         Matcher crMatcher = crPattern.matcher(text);
         if (crMatcher.find()) {

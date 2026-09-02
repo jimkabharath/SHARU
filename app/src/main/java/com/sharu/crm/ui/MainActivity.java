@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements VoiceCommandManag
 
         leadList = new ArrayList<>();
         leadList.add(new LeadModel("Direct Sample Lead", "+919876543210", "HOT", "Budget: 50L | Location: Hyderabad"));
-        rv.setAdapter(new LeadAdapter(leadList));
+        rv.setAdapter(new LeadAdapter(this, leadList));
 
         btnAddLead = findViewById(R.id.btnAddLead);
         btnVoice = findViewById(R.id.btnVoice);

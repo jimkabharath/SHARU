@@ -85,7 +85,6 @@ public class VoiceCommandManager {
     }
 
     private void processVoiceInput(String text) {
-        // Voice command routing
         if (text.contains("call") || text.contains("dial")) {
             callback.onCommandRecognized("ACTION_CALL", text);
         } else if (text.contains("whatsapp") || text.contains("message") || text.contains("quote")) {

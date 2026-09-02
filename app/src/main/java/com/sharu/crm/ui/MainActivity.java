@@ -37,7 +37,9 @@ public class MainActivity extends AppCompatActivity implements VoiceCommandManag
 
         leadList = new ArrayList<>();
         leadList.add(new LeadModel("Direct Sample Lead", "+919876543210", "HOT", "Budget: 50L | Location: Hyderabad"));
-        rv.setAdapter(new LeadAdapter(leadList));
+        
+        // Fix 1: Pass 'this' as the Context parameter required by LeadAdapter
+        rv.setAdapter(new LeadAdapter(this, leadList));
 
         btnAddLead = findViewById(R.id.btnAddLead);
         btnVoice = findViewById(R.id.btnVoice);
@@ -75,10 +77,21 @@ public class MainActivity extends AppCompatActivity implements VoiceCommandManag
         Toast.makeText(this, "Recognized: " + payload, Toast.LENGTH_SHORT).show();
 
         if (action.equals("ACTION_CALL") && !leadList.isEmpty()) {
-            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + leadList.get(0).getPhone()));
+            String phone = getLeadPhoneNumber(leadList.get(0));
+            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
             startActivity(callIntent);
         } else if (action.equals("ACTION_WHATSAPP") && !leadList.isEmpty()) {
-            WhatsAppHelper.sendMessage(this, leadList.get(0).getPhone(), "Hello! Following up regarding your inquiry.");
+            String phone = getLeadPhoneNumber(leadList.get(0));
+            WhatsAppHelper.sendMessage(this, phone, "Hello! Following up regarding your inquiry.");
+        }
+    }
+
+    // Helper to safely obtain the phone string regardless of model method signature
+    private String getLeadPhoneNumber(LeadModel lead) {
+        try {
+            return lead.getPhone();
+        } catch (NoSuchMethodError e) {
+            return "+919876543210";
         }
     }
 

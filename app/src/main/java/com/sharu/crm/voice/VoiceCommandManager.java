@@ -90,6 +90,8 @@ public class VoiceCommandManager {
     private void processVoiceInput(String text) {
         if (text.contains("emi") || text.contains("loan") || text.contains("interest")) {
             extractAndComputeEmi(text);
+        } else if (text.contains("backup") || text.contains("report") || text.contains("daily")) {
+            callback.onCommandRecognized("ACTION_BACKUP_WHATSAPP", text);
         } else if (text.contains("call") || text.contains("dial")) {
             callback.onCommandRecognized("ACTION_CALL", text);
         } else if (text.contains("whatsapp") || text.contains("message") || text.contains("quote")) {
@@ -104,7 +106,7 @@ public class VoiceCommandManager {
     private void extractAndComputeEmi(String text) {
         double principal = 0.0;
         double rate = 8.5; // Default fallback interest rate
-        int months = 240;  // Default fallback 20 years
+        int months = 240;  // Default fallback tenure: 20 years
 
         // 1. Extract Rate (e.g., "8.5%", "9 percent", "at 10.25")
         Pattern ratePattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(%|percent|pc)");
